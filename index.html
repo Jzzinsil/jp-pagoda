@@ -1216,7 +1216,7 @@
   const toc = document.getElementById('tocOverlay');
   let cur = 0;
   function show(i, dir){
-    i = Math.max(0, Math.min(order.length - 1, i));
+    i = (i + order.length) % order.length;
     if(i === cur && dir) return;
     cur = i;
     tabs.forEach(x => x.setAttribute('aria-selected','false'));
@@ -1227,8 +1227,8 @@
     if(dir) p.classList.add(dir === 'next' ? 'dir-next' : 'dir-prev');
     nowEl.innerHTML = (i + 1) + ' / ' + order.length + '<b>' + titles[i] + '</b>';
     curEl.textContent = titles[i];
-    prevBtn.disabled = i === 0;
-    nextBtn.disabled = i === order.length - 1;
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
     window.scrollTo({top:0, behavior:'auto'});
   }
   tabs.forEach((t, i) => t.addEventListener('click', () => { show(i, i > cur ? 'next' : 'prev'); toc.classList.remove('open'); }));
