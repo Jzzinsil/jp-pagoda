@@ -50,6 +50,45 @@
   .tab:hover{background:var(--line);}
   .tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
   .tab[aria-selected="true"] .tsub{color:color-mix(in srgb,var(--bg) 65%,var(--ink));}
+  /* ===== 학습 · 복습 오버레이 ===== */
+  .study{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--bg) 97%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);overflow-y:auto;display:none;}
+  .study.open{display:block;}
+  .study-inner{max-width:620px;margin:0 auto;padding:26px 22px calc(40px + env(safe-area-inset-bottom));min-height:100%;display:flex;flex-direction:column;}
+  .study-controls{display:flex;gap:10px;align-items:center;margin-bottom:22px;flex-wrap:wrap;}
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:999px;padding:3px;gap:2px;}
+  .seg button{border:none;background:none;color:var(--meta);font-family:var(--jp);font-size:12.5px;padding:7px 15px;border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s;}
+  .seg button.on{background:var(--ink);color:var(--bg);}
+  .study-sel{margin-left:auto;border:1px solid var(--line-2);background:var(--bg);color:var(--ink);font-family:var(--jp);font-size:12.5px;padding:7px 12px;border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .study-stage{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:340px;}
+  /* 카드 */
+  .card{border:1px solid var(--line-2);border-radius:20px;padding:34px 26px;min-height:280px;display:flex;flex-direction:column;justify-content:center;text-align:center;cursor:pointer;background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-tap-highlight-color:transparent;transition:border-color .15s;}
+  .card:hover{border-color:var(--ink);}
+  .card .card-lesson{font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);margin-bottom:18px;}
+  .card .card-ko{font-family:var(--ko-font);font-size:18px;line-height:1.6;color:var(--ink);font-weight:500;}
+  .card .card-ja{font-family:var(--jp);font-size:22px;line-height:1.55;color:var(--ink);margin-top:20px;font-weight:500;}
+  .card .card-r{font-family:var(--jp);font-size:13.5px;color:var(--meta);margin-top:10px;}
+  .card .card-hint{font-family:var(--ko-font);font-size:11.5px;color:var(--faint);margin-top:22px;letter-spacing:.02em;}
+  .card .card-back{display:none;}
+  .card.flipped .card-back{display:block;}
+  .card.flipped .card-hint{display:none;}
+  .card .speak-lg{margin-top:16px;border:1px solid var(--line-2);background:none;color:var(--ink);border-radius:999px;padding:8px 18px;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .card .speak-lg.on{background:var(--hot);border-color:var(--hot);color:#fff;}
+  /* 진행바 */
+  .study-prog{font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);text-align:center;margin-bottom:14px;}
+  .study-bar{height:3px;background:var(--line);border-radius:999px;overflow:hidden;margin-bottom:20px;}
+  .study-bar i{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .25s;}
+  /* 하단 버튼 */
+  .study-foot{display:flex;gap:10px;margin-top:22px;}
+  .study-foot button{flex:1;border:1px solid var(--line-2);background:color-mix(in srgb,var(--bg) 60%,transparent);color:var(--ink);padding:14px;border-radius:14px;font-family:var(--jp);font-size:13.5px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s,background .15s;}
+  .study-foot button:active{opacity:.5;}
+  .study-foot button.primary{background:var(--ink);border-color:var(--ink);color:var(--bg);}
+  .study-foot button.ok{background:none;border-color:var(--hot);color:var(--hot);}
+  .study-foot button.no{background:none;border-color:var(--line-2);color:var(--meta);}
+  .study-foot .icon{flex:0 0 auto;width:52px;}
+  /* 결과 */
+  .study-result{text-align:center;padding:40px 20px;}
+  .study-result .big{font-family:var(--jp);font-size:40px;color:var(--ink);font-weight:600;}
+  .study-result .lbl{font-family:var(--ko-font);font-size:14px;color:var(--meta);margin-top:10px;}
   .panel{display:none;}
   .panel.active{display:block;}
   section.block{padding:64px 0 0;}
@@ -149,6 +188,7 @@
     <div class="row">
       <button class="toc-btn" id="tocBtn" aria-label="목차 열기">目次 <span>목차</span></button>
       <div class="cur-lesson" id="curLesson" aria-live="polite"></div>
+      <button class="toc-btn" id="studyBtn" aria-label="학습 열기">復習 <span>학습</span></button>
       <button class="theme-btn" id="themeToggle" title="라이트/다크" aria-label="테마 전환">◐</button>
     </div>
   </div>
@@ -178,6 +218,24 @@
       <button class="tab" role="tab" aria-selected="false" data-target="p29">Lesson 29<span class="tsub">조건 と·たら·ば·なら</span></button>
       <button class="tab" role="tab" aria-selected="false" data-target="p30">Lesson 30<span class="tsub">의지형 · 가능형</span></button>
     </div>
+  </div>
+</div>
+
+<div class="study" id="studyOverlay" aria-label="학습 · 복습">
+  <div class="study-inner">
+    <div class="toc-head">
+      <p class="eyebrow" style="margin:0">Study · 복습</p>
+      <button class="toc-close" id="studyClose" aria-label="학습 닫기">✕</button>
+    </div>
+    <div class="study-controls">
+      <div class="seg" id="modeSeg" role="tablist">
+        <button data-mode="flash" class="on" role="tab">한→일 카드</button>
+        <button data-mode="quiz" role="tab">복습 퀴즈</button>
+      </div>
+      <select id="rangeSel" class="study-sel" aria-label="범위 선택"></select>
+    </div>
+    <div class="study-stage" id="studyStage"></div>
+    <div class="study-foot" id="studyFoot"></div>
   </div>
 </div>
 
@@ -1281,6 +1339,151 @@
     });
   }
   show(0);
+
+  /* ===================== 학습 · 복습 ===================== */
+  (function(){
+    const overlay = document.getElementById('studyOverlay');
+    const stage = document.getElementById('studyStage');
+    const foot = document.getElementById('studyFoot');
+    const rangeSel = document.getElementById('rangeSel');
+    const modeSeg = document.getElementById('modeSeg');
+    let mode = 'flash';   // 'flash' | 'quiz'
+    const QUIZ_N = 5;
+
+    // 모든 문장(한↔일 쌍) 수집 — 기존 콘텐츠 재활용
+    function collect(){
+      const all = [];
+      panels.forEach((panel, li) => {
+        panel.querySelectorAll('.line, .ex li').forEach(el => {
+          const jEl = el.querySelector('.j'), kEl = el.querySelector('.k');
+          if(!jEl || !kEl) return;
+          const j = jEl.textContent.replace(/🔊/g,'').trim();
+          const k = kEl.textContent.trim();
+          if(!j || !k || /〇〇/.test(j) === false && j.length < 2) return;
+          const rEl = el.querySelector('.r');
+          all.push({ j, k, r: rEl ? rEl.textContent.trim() : '', lesson: li, title: titles[li] });
+        });
+      });
+      return all;
+    }
+    const ALL = collect();
+
+    // 범위 셀렉트 채우기
+    (function fillRange(){
+      let html = '<option value="all">전체 (' + ALL.length + '문장)</option>';
+      order.forEach((_, i) => {
+        const n = ALL.filter(c => c.lesson === i).length;
+        if(n) html += '<option value="' + i + '">Lesson ' + (i+1) + ' · ' + titles[i] + ' (' + n + ')</option>';
+      });
+      rangeSel.innerHTML = html;
+    })();
+
+    function pool(){
+      const v = rangeSel.value;
+      return v === 'all' ? ALL.slice() : ALL.filter(c => c.lesson === +v);
+    }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+    let deck = [], di = 0, quizAns = [];
+
+    function speakBig(text){
+      const b = stage.querySelector('.speak-lg');
+      if(b) speak(text, b);
+    }
+
+    // ---- 플래시카드 ----
+    function renderFlash(){
+      if(!deck.length){ stage.innerHTML = '<div class="study-result"><div class="lbl">이 범위에 카드가 없습니다.</div></div>'; foot.innerHTML=''; return; }
+      const c = deck[di], flipped = c._flip;
+      stage.innerHTML =
+        '<div class="study-prog">' + (di+1) + ' / ' + deck.length + '</div>' +
+        '<div class="study-bar"><i style="width:' + ((di+1)/deck.length*100) + '%"></i></div>' +
+        '<div class="card' + (flipped?' flipped':'') + '" id="theCard">' +
+          '<div class="card-lesson">Lesson ' + (c.lesson+1) + ' · ' + c.title + '</div>' +
+          '<div class="card-ko">' + c.k + '</div>' +
+          '<div class="card-back">' +
+            '<div class="card-ja">' + c.j + '</div>' +
+            (c.r ? '<div class="card-r">' + c.r + '</div>' : '') +
+            '<button class="speak-lg" type="button">🔊 발음</button>' +
+          '</div>' +
+          '<div class="card-hint">탭하면 일본어 공개</div>' +
+        '</div>';
+      foot.innerHTML =
+        '<button class="icon" id="fPrev">◀</button>' +
+        '<button class="primary" id="fFlip">' + (flipped?'한국어로':'일본어 보기') + '</button>' +
+        '<button class="icon" id="fNext">▶</button>';
+      const card = document.getElementById('theCard');
+      const flip = () => { c._flip = !c._flip; renderFlash(); if(c._flip) setTimeout(()=>speakBig(c.j),150); };
+      card.addEventListener('click', e => { if(e.target.closest('.speak-lg')){ e.stopPropagation(); speakBig(c.j); return; } flip(); });
+      document.getElementById('fFlip').addEventListener('click', flip);
+      document.getElementById('fPrev').addEventListener('click', () => { di = (di-1+deck.length)%deck.length; renderFlash(); });
+      document.getElementById('fNext').addEventListener('click', () => { di = (di+1)%deck.length; renderFlash(); });
+    }
+
+    // ---- 복습 퀴즈 ----
+    function renderQuiz(){
+      if(di >= deck.length){ // 결과
+        const known = quizAns.filter(Boolean).length;
+        stage.innerHTML = '<div class="study-result"><div class="big">' + known + ' / ' + deck.length + '</div><div class="lbl">아는 문장 ' + known + '개 · 복습 필요 ' + (deck.length-known) + '개</div></div>';
+        foot.innerHTML = '<button class="primary" id="qAgain">다시 복습</button>';
+        document.getElementById('qAgain').addEventListener('click', startQuiz);
+        return;
+      }
+      const c = deck[di], revealed = c._rev;
+      stage.innerHTML =
+        '<div class="study-prog">복습 ' + (di+1) + ' / ' + deck.length + '</div>' +
+        '<div class="study-bar"><i style="width:' + (di/deck.length*100) + '%"></i></div>' +
+        '<div class="card' + (revealed?' flipped':'') + '" id="theCard">' +
+          '<div class="card-lesson">Lesson ' + (c.lesson+1) + ' · ' + c.title + '</div>' +
+          '<div class="card-ko">' + c.k + '</div>' +
+          '<div class="card-back">' +
+            '<div class="card-ja">' + c.j + '</div>' +
+            (c.r ? '<div class="card-r">' + c.r + '</div>' : '') +
+            '<button class="speak-lg" type="button">🔊 발음</button>' +
+          '</div>' +
+          '<div class="card-hint">머릿속으로 일본어를 말해보고 확인</div>' +
+        '</div>';
+      if(!revealed){
+        foot.innerHTML = '<button class="primary" id="qShow">일본어 확인</button>';
+        document.getElementById('qShow').addEventListener('click', reveal);
+      } else {
+        foot.innerHTML = '<button class="no" id="qNo">✗ 다시</button><button class="ok" id="qOk">✓ 알았음</button>';
+        document.getElementById('qNo').addEventListener('click', () => grade(false));
+        document.getElementById('qOk').addEventListener('click', () => grade(true));
+      }
+      const card = document.getElementById('theCard');
+      card.addEventListener('click', e => { if(e.target.closest('.speak-lg')){ e.stopPropagation(); speakBig(c.j); return; } if(!c._rev) reveal(); });
+      function reveal(){ c._rev = true; renderQuiz(); setTimeout(()=>speakBig(c.j),150); }
+    }
+    function grade(ok){ quizAns[di] = ok; di++; renderQuiz(); }
+
+    function startFlash(){ deck = shuffle(pool()).map(c => ({...c, _flip:false})); di = 0; renderFlash(); }
+    function startQuiz(){ const p = shuffle(pool()); deck = p.slice(0, Math.min(QUIZ_N, p.length)).map(c => ({...c, _rev:false})); di = 0; quizAns = []; renderQuiz(); }
+    function start(){ mode === 'flash' ? startFlash() : startQuiz(); }
+
+    // 이벤트
+    modeSeg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      modeSeg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); mode = b.dataset.mode; start();
+    }));
+    rangeSel.addEventListener('change', start);
+    document.getElementById('studyBtn').addEventListener('click', () => {
+      overlay.classList.add('open'); toc.classList.remove('open');
+      // 기본 범위: 현재 보고 있는 과
+      rangeSel.value = String(cur); if(rangeSel.selectedIndex < 0) rangeSel.value = 'all';
+      start();
+    });
+    document.getElementById('studyClose').addEventListener('click', () => { overlay.classList.remove('open'); if(synth) synth.cancel(); });
+    document.addEventListener('keydown', e => {
+      if(!overlay.classList.contains('open')) return;
+      if(e.key === 'Escape'){ overlay.classList.remove('open'); if(synth) synth.cancel(); return; }
+      if(mode === 'flash'){
+        if(e.key === 'ArrowRight'){ document.getElementById('fNext')?.click(); }
+        if(e.key === 'ArrowLeft'){ document.getElementById('fPrev')?.click(); }
+        if(e.key === ' '){ e.preventDefault(); document.getElementById('fFlip')?.click(); }
+      }
+    });
+  })();
 </script>
 <!-- Vercel Web Analytics -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
