@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>日本語ノート — Study Notes</title>
+<style>
+  :root {
+    --bg:#ffffff; --ink:#1a1a1a; --ko:#4a4a4a; --meta:#a6a6a6;
+    --faint:#cfcfcf; --line:#ececec; --line-2:#dcdcdc; --hot:#b0632f;
+    --sans:"Helvetica Neue",Arial,system-ui,sans-serif;
+    --jp:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo",sans-serif;
+    --ko-font:"Apple SD Gothic Neo","Pretendard","Malgun Gothic",system-ui,sans-serif;
+    --mono:"SFMono-Regular","SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){:root{--bg:#111;--ink:#ededed;--ko:#b3b3b3;--meta:#6f6f6f;--faint:#4a4a4a;--line:#242424;--line-2:#333;--hot:#e0a468;}}
+  :root[data-theme="dark"]{--bg:#111;--ink:#ededed;--ko:#b3b3b3;--meta:#6f6f6f;--faint:#4a4a4a;--line:#242424;--line-2:#333;--hot:#e0a468;}
+  :root[data-theme="light"]{--bg:#fff;--ink:#1a1a1a;--ko:#4a4a4a;--meta:#a6a6a6;--faint:#cfcfcf;--line:#ececec;--line-2:#dcdcdc;--hot:#b0632f;}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ko-font);line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:.01em;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 32px;}
+  .eyebrow{font-family:var(--sans);font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--meta);font-weight:500;}
+  header.mast{padding:80px 0 0;}
+  header.mast .eyebrow{margin:0 0 28px;}
+  .mast h1{margin:0;font-family:var(--jp);font-weight:300;font-size:clamp(48px,11vw,88px);letter-spacing:.02em;line-height:.98;}
+  .mast .sub{margin:26px 0 0;color:var(--ko);font-size:14px;max-width:48ch;font-weight:400;line-height:1.75;}
+  .mast .rule{height:1px;background:var(--ink);margin:40px 0 0;}
+  nav.tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
+  nav.tabs .row{display:flex;align-items:center;gap:12px;height:56px;}
+  .toc-btn{flex:0 0 auto;border:1px solid var(--line-2);background:none;color:var(--ink);font-family:var(--jp);font-size:12.5px;padding:7px 13px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;}
+  .toc-btn span{font-family:var(--sans);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--meta);}
+  .toc-btn:active{opacity:.6;}
+  .cur-lesson{flex:1;min-width:0;text-align:center;font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .theme-btn{flex:0 0 auto;border:none;background:none;cursor:pointer;color:var(--meta);font-size:15px;height:56px;}
+  .theme-btn:hover{color:var(--ink);}
+  /* ---- table of contents overlay ---- */
+  .toc{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--bg) 96%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);overflow-y:auto;display:none;}
+  .toc.open{display:block;animation:tocIn .22s ease both;}
+  @keyframes tocIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.toc.open{animation:none;}}
+  .toc-inner{max-width:720px;margin:0 auto;padding:26px 22px 70px;}
+  .toc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .toc-close{border:none;background:none;font-size:19px;color:var(--meta);cursor:pointer;padding:8px;-webkit-tap-highlight-color:transparent;}
+  .toc-close:hover{color:var(--ink);}
+  .toc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  @media (min-width:560px){.toc-grid{grid-template-columns:repeat(3,1fr);}}
+  .tab{border:1px solid var(--line-2);background:none;border-radius:14px;padding:13px 15px;text-align:left;cursor:pointer;font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:600;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s;}
+  .tab .tsub{display:block;font-family:var(--ko-font);font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--meta);font-weight:400;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tab:hover{background:var(--line);}
+  .tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
+  .tab[aria-selected="true"] .tsub{color:color-mix(in srgb,var(--bg) 65%,var(--ink));}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  section.block{padding:64px 0 0;}
+  .sec-head{display:flex;align-items:baseline;gap:20px;}
+  .sec-idx{font-family:var(--mono);font-size:12px;color:var(--meta);letter-spacing:.05em;font-variant-numeric:tabular-nums;padding-top:4px;}
+  .sec-title-wrap{flex:1;}
+  h2.sec-title{margin:0;font-family:var(--jp);font-weight:400;font-size:24px;letter-spacing:.01em;line-height:1.3;}
+  .sec-sub{margin:12px 0 0;color:var(--meta);font-size:13px;font-weight:400;}
+  .sec-rule{height:1px;background:var(--line-2);margin-top:24px;}
+  .unit{padding:32px 0;border-bottom:1px solid var(--line);}
+  .unit:last-child{border-bottom:none;}
+  .unit-h{font-family:var(--jp);font-size:17px;font-weight:500;margin:0 0 6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .unit-h .en{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--meta);font-weight:500;}
+  .rule{margin:6px 0 0;font-size:13.5px;color:var(--ko);}
+  .rule b{color:var(--ink);font-weight:600;}
+  .rule .jp{font-family:var(--jp);}
+  .conj{width:100%;border-collapse:collapse;margin:18px 0 4px;font-size:14px;}
+  .conj td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:baseline;}
+  .conj tr:last-child td{border-bottom:none;}
+  .conj .grp{font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--meta);width:32%;font-weight:500;}
+  .conj .jp{font-family:var(--jp);color:var(--ink);}
+  .conj .arrow{color:var(--faint);padding:0 7px;}
+  .conj .out{border-bottom:1px solid var(--ink);padding-bottom:1px;}
+  .ex{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-direction:column;gap:24px;}
+  .ex .j{font-family:var(--jp);font-size:18.5px;font-weight:400;line-height:1.55;letter-spacing:.01em;}
+  .ex .j .hl{border-bottom:1px solid var(--ink);font-weight:500;padding-bottom:1px;}
+  .ex .r{font-family:var(--jp);font-size:12px;color:var(--meta);margin-top:8px;letter-spacing:.02em;}
+  .ex .k{font-size:13.5px;color:var(--ko);margin-top:6px;}
+  .note{margin-top:22px;padding:16px 0 0;border-top:1px solid var(--line-2);}
+  .note .tag{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);display:block;margin-bottom:7px;}
+  .note p{margin:0;font-size:13px;color:var(--ko);}
+  .note p+p{margin-top:9px;}
+  .note .jp{font-family:var(--jp);color:var(--ink);}
+  .note b{color:var(--ink);font-weight:600;}
+  .note.real{border-top:none;margin-top:22px;padding:15px 17px;border-radius:12px;background:color-mix(in srgb,var(--hot) 10%,transparent);border:1px solid color-mix(in srgb,var(--hot) 26%,transparent);}
+  .note.real .tag{color:var(--hot);font-weight:700;}
+  .note.real p{color:var(--ink);}
+  .hot{color:var(--hot);font-weight:700;border-bottom:1.5px solid color-mix(in srgb,var(--hot) 45%,transparent);padding-bottom:1px;}
+  .voc{margin-top:24px;}
+  .voc .row{display:grid;grid-template-columns:1fr auto;gap:6px 20px;padding:14px 0;border-bottom:1px solid var(--line);}
+  .voc .row:first-child{border-top:1px solid var(--line-2);}
+  .voc .lead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .voc .w{font-family:var(--jp);font-size:17px;font-weight:500;}
+  .voc .rd{font-family:var(--jp);font-size:12px;color:var(--meta);letter-spacing:.03em;}
+  .voc .mn{font-size:13px;color:var(--ko);text-align:right;align-self:center;}
+  .voc .mn .jp{font-family:var(--jp);}
+  .dlg{margin-top:24px;}
+  .line{display:grid;grid-template-columns:52px 1fr;gap:4px 0;padding:20px 0;border-bottom:1px solid var(--line);}
+  .line:last-child{border-bottom:none;}
+  .who{font-family:var(--sans);font-size:10px;letter-spacing:.14em;color:var(--meta);text-transform:uppercase;padding-top:6px;font-weight:500;}
+  .line .j{font-family:var(--jp);font-size:17.5px;font-weight:400;line-height:1.6;}
+  .line .k{grid-column:2;font-size:13px;color:var(--ko);margin-top:8px;}
+  .placeholder{padding:130px 0;text-align:center;}
+  .placeholder .big{font-family:var(--jp);font-weight:200;font-size:68px;color:var(--faint);}
+  .placeholder p{color:var(--meta);font-size:13.5px;margin-top:20px;line-height:1.9;}
+  footer{border-top:1px solid var(--line);}
+  footer .wrap{padding:34px 32px calc(90px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  a.top{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);text-decoration:none;}
+  a.top:hover{color:var(--ink);}
+  @media (max-width:520px){.wrap{padding:0 20px;}header.mast{padding-top:52px;}.sec-head{gap:14px;}.voc .row{grid-template-columns:1fr;}.voc .mn{text-align:left;}
+    nav.tabs .row{gap:20px;}
+    .mast .sub{font-size:13.5px;}
+    section.block{padding:52px 0 0;}
+    h2.sec-title{font-size:22px;}
+    .ex .j,.line .j{font-size:18px;}
+  }
+  /* ---- mobile-first page flipping ---- */
+  main{padding-bottom:calc(92px + env(safe-area-inset-bottom));}
+  .pager{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);}
+  .pager .row{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 20px;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+  .pager button{flex:0 0 auto;border:1px solid var(--line-2);background:color-mix(in srgb,var(--bg) 60%,transparent);color:var(--ink);width:46px;height:46px;border-radius:14px;font-size:17px;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;transition:opacity .15s;}
+  .pager button:active{opacity:.5;}
+  .pager button:disabled{color:var(--faint);border-color:var(--line);cursor:default;}
+  .pager .now{flex:1;text-align:center;font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--meta);line-height:1.5;}
+  .pager .now b{display:block;font-family:var(--jp);font-size:14px;letter-spacing:.01em;color:var(--ink);text-transform:none;margin-top:1px;font-weight:500;}
+  @keyframes flipNext{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+  @keyframes flipPrev{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+  .panel.active.dir-next{animation:flipNext .3s ease both;}
+  .panel.active.dir-prev{animation:flipPrev .3s ease both;}
+  @media (prefers-reduced-motion:reduce){.panel.active.dir-next,.panel.active.dir-prev{animation:none;}}
+  .speak{margin-left:8px;border:none;background:none;cursor:pointer;font-size:12px;padding:2px 5px;vertical-align:middle;line-height:1;opacity:.4;-webkit-tap-highlight-color:transparent;transition:opacity .15s,transform .1s;}
+  .speak:hover{opacity:.8;}
+  .speak.on{opacity:1;transform:scale(1.15);}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="eyebrow">日本語 &nbsp;·&nbsp; Basic Notes</p>
+    <h1>日本語ノート</h1>
+    <p class="sub">일본어 기초 정리 노트. 문법 · 예문 · 단어 · 본문을 과별로 담았습니다. 현재 1–30과. 좌우로 넘기거나(스와이프) 하단 화살표로 책처럼 넘겨 보세요. 🔊 로 발음을 듣고, <span class="hot">주황색</span>은 실전에서 많이 쓰는 표현입니다.</p>
+    <div class="rule"></div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="과 선택">
+  <div class="wrap">
+    <div class="row">
+      <button class="toc-btn" id="tocBtn" aria-label="목차 열기">目次 <span>목차</span></button>
+      <div class="cur-lesson" id="curLesson" aria-live="polite"></div>
+      <button class="theme-btn" id="themeToggle" title="라이트/다크" aria-label="테마 전환">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="toc" id="tocOverlay" aria-label="목차">
+  <div class="toc-inner">
+    <div class="toc-head">
+      <p class="eyebrow" style="margin:0">Contents · 목차</p>
+      <button class="toc-close" id="tocClose" aria-label="목차 닫기">✕</button>
+    </div>
+    <div class="toc-grid">
+      <button class="tab" role="tab" aria-selected="true"  data-target="p1">Lesson 1<span class="tsub">히라가나 · 자기소개</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p2">Lesson 2<span class="tsub">탁점·받침 · です</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p3">Lesson 3<span class="tsub">숫자 · これ·の</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p4">Lesson 4<span class="tsub">い형용사</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p5">Lesson 5<span class="tsub">な형용사 · 시간</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p6">Lesson 6<span class="tsub">연결 · 이유</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p12">Lesson 12<span class="tsub">동사 그룹 · ます</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p16">Lesson 16<span class="tsub">て형 · 총정리</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p19">Lesson 19<span class="tsub">あげる·くれる</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p20">Lesson 20<span class="tsub">~たことがある</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p22">Lesson 22<span class="tsub">前に·後で</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p24">Lesson 24<span class="tsub">~方がいい</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p26">Lesson 26<span class="tsub">~そうだ 전달</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p27">Lesson 27<span class="tsub">~そうだ 양태</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p29">Lesson 29<span class="tsub">조건 と·たら·ば·なら</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-target="p30">Lesson 30<span class="tsub">의지형 · 가능형</span></button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- ==================== 1과 ==================== -->
+  <div class="panel active" id="p1" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Kana · 오십음도</p>
+        <h2 class="sec-title">히라가나 46자</h2>
+        <p class="sec-sub">일본어 문자는 셋: 히라가나(소문자 역할) · 가타카나(대문자) · 한자. 회화만 목표면 한자는 필수 아님, 가나는 필수.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">あ행</td><td class="jp">あ(a) い(i) う(u) え(e) お(o)</td></tr>
+          <tr><td class="grp">か행</td><td class="jp">か(ka) き(ki) く(ku) け(ke) こ(ko)</td></tr>
+          <tr><td class="grp">さ행</td><td class="jp">さ(sa) し(shi) す(su) せ(se) そ(so)</td></tr>
+          <tr><td class="grp">た행</td><td class="jp">た(ta) ち(chi) つ(tsu) て(te) と(to)</td></tr>
+          <tr><td class="grp">な행</td><td class="jp">な(na) に(ni) ぬ(nu) ね(ne) の(no)</td></tr>
+          <tr><td class="grp">は행</td><td class="jp">は(ha) ひ(hi) ふ(fu) へ(he) ほ(ho)</td></tr>
+          <tr><td class="grp">ま행</td><td class="jp">ま(ma) み(mi) む(mu) め(me) も(mo)</td></tr>
+          <tr><td class="grp">や행</td><td class="jp">や(ya) ゆ(yu) よ(yo)</td></tr>
+          <tr><td class="grp">ら행</td><td class="jp">ら(ra) り(ri) る(ru) れ(re) ろ(ro)</td></tr>
+          <tr><td class="grp">わ · ん</td><td class="jp">わ(wa) を(o) · ん(n)</td></tr>
+        </table>
+        <div class="note"><span class="tag">발음 주의</span><p>う단의 <span class="jp">す·つ</span>는 「우」가 아니라 <b>「스·츠」</b> (으 발음). <span class="jp">つ(tsu)</span>는 혀끝을 윗니 뒤에 대고 발음. 못하면 아기말투(あかちゃん言葉)처럼 귀엽게 들리니 편하게. 오십음도는 <b>가로=행, 세로=단</b>.</p></div>
+        <div class="note"><span class="tag">외우는 팁</span><p>글자 모양을 그림으로 연상 — あ(아기 안은 엄마), い(앞니), か(힘力), き(열쇠key), け(케이크), ね/に에는 고양이 꼬리… 유튜브 「히라가나 2초」로 보고 읽기 연습이 가장 빠름.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Speaking</p>
+        <h2 class="sec-title">자기소개 템플릿</h2>
+        <p class="sec-sub">빈칸만 내 정보로 바꿔서. 내 이름엔 さん 안 붙임.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">はじめまして。私は<span class="hl">〇〇</span>です。</div><div class="r">わたしは 〇〇です (남자는 僕は=ぼくは)</div><div class="k">처음 뵙겠습니다. 저는 〇〇입니다.</div></li>
+          <li><div class="j">仕事は<span class="hl">〇〇</span>です。 / 趣味は<span class="hl">〇〇</span>です。</div><div class="r">しごとは / しゅみは</div><div class="k">직업은 〇〇입니다. / 취미는 〇〇입니다.</div></li>
+          <li><div class="j">MBTIは<span class="hl">〇〇</span>です。 / <span class="hl">ソウル</span>に住んでいます。</div><div class="r">ソウルに すんでいます</div><div class="k">MBTI는 〇〇입니다. / 서울에 살고 있습니다.</div></li>
+          <li><div class="j">よろしくお願いします。</div><div class="r">よろしく おねがいします</div><div class="k">잘 부탁드립니다.</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">직업 · 취미</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">会社員・大学生</span><span class="rd">かいしゃいん・だいがくせい</span></div><div class="mn">회사원 · 대학생</div></div>
+        <div class="row"><div class="lead"><span class="w">自営業者</span><span class="rd">じえいぎょうしゃ</span></div><div class="mn">자영업자·사업가</div></div>
+        <div class="row"><div class="lead"><span class="w">研究員・投資家</span><span class="rd">けんきゅういん・とうしか</span></div><div class="mn">연구원 · 투자자</div></div>
+        <div class="row"><div class="lead"><span class="w">プログラマー</span><span class="rd"></span></div><div class="mn">개발자·프로그래머</div></div>
+        <div class="row"><div class="lead"><span class="w">映画鑑賞・音楽鑑賞</span><span class="rd">えいが・おんがくかんしょう</span></div><div class="mn">영화 감상 · 음악 감상</div></div>
+        <div class="row"><div class="lead"><span class="w">読書・運動・ゲーム</span><span class="rd">どくしょ・うんどう</span></div><div class="mn">독서 · 운동 · 게임</div></div>
+        <div class="row"><div class="lead"><span class="w">ランニング・水泳</span><span class="rd">すいえい</span></div><div class="mn">러닝 · 수영 (マラソン 마라톤)</div></div>
+      </div>
+      <div class="note"><span class="tag">인사말</span><p>수업 끝 인사 <span class="jp">お疲れ様でした(おつかれさまでした)</span> 수고하셨습니다. 자기소개 답례는 <span class="jp">こちらこそ</span> 저야말로.</p></div>
+    </section>
+  </div>
+
+  <!-- ==================== 2과 ==================== -->
+  <div class="panel" id="p2" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Kana · 히라가나</p>
+        <h2 class="sec-title">탁점 · 반탁점 · 요음</h2>
+        <p class="sec-sub">46자만으론 발음이 부족해 소리를 더 만듭니다.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">탁점 (゛)</td><td class="jp">か→<span class="out">が</span> · さ→<span class="out">ざ</span> · た→<span class="out">だ</span> · は→<span class="out">ば</span></td></tr>
+          <tr><td class="grp">반탁점 (゜)</td><td class="jp">は행만 → <span class="out">ぱ</span> (파 발음)</td></tr>
+          <tr><td class="grp">요음 (拗音)</td><td class="jp">い단 + 작은 ゃゅょ (きゃ · しゃ · ちゃ · りゃ …)</td></tr>
+        </table>
+        <div class="note"><span class="tag">Point</span><p>じ와 ぢ는 발음이 같지만 <b>じ</b>를 주로 씀(80%↑). 요음은 <b>い단</b>에만 작은 ゃゅょ가 붙습니다(あ단엔 X).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Kana</p>
+        <h2 class="sec-title">받침 · 장음</h2>
+        <p class="sec-sub">일본어 받침은 딱 두 개. 장음은 앞 글자를 길게.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">ん · 비음 받침</td><td class="jp">ㄴ/ㅁ/ㅇ (韓国=かんこく · 日本=にほん · 乾杯=かんぱい)</td></tr>
+          <tr><td class="grp">っ · 작은 つ</td><td class="jp">그 외 받침 (学校=がっこう · 雑誌=ざっし)</td></tr>
+          <tr><td class="grp">장음</td><td class="jp">あ+あ · い+い · う+う · え+<b>い</b> · お+<b>う</b></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">先生 = <span class="hl">せんせい</span> (せんせえ로 길게) · 空港 = <span class="hl">くうこう</span></div><div class="k">え단은 え 대신 い, お단은 お 대신 う로 늘림 (90%)</div></li>
+          <li><div class="j">おばあさん (할머니) ↔ おばさん (이모)</div><div class="k">장음 유무·고저 악센트로 뜻이 갈림 → 꼭 맞춰 발음</div></li>
+        </ul>
+        <div class="note"><span class="tag">조사 예외</span><p>は를 조사로 쓰면 <b>わ</b>로 읽음 (私は=わたし<b>わ</b>). へ를 조사로 쓰면 <b>え</b>로 읽음.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Noun</p>
+        <h2 class="sec-title">명사문 · ~です / ~じゃないです</h2>
+        <p class="sec-sub">긍정 です, 부정 じゃないです(=じゃありません).</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">私は学生<span class="hl">です</span>。 / 学生<span class="hl">じゃないです</span>。</div><div class="r">わたしは がくせいです / がくせい じゃないです</div><div class="k">저는 학생입니다. / 학생이 아닙니다.</div></li>
+          <li><div class="j">キムさんは日本<span class="hl">の</span>方ですか。</div><div class="r">キムさんは にほんの かたですか</div><div class="k">김 씨는 일본 분입니까? (명사+の+명사, 方=かた 분)</div></li>
+        </ul>
+        <div class="note"><span class="tag">호칭</span><p><span class="jp">~さん</span> 씨 · <span class="jp">~様(さま)</span> 님 · <span class="jp">~君(くん)</span> 격식(주로 남성·직장에선 남녀) · <span class="jp">~ちゃん</span> 친근. <b>내 이름엔 붙이지 않음.</b> 성함은 <span class="jp">お名前(なまえ)</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">2과 단어 · 직업·국가</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">学生・大学生</span><span class="rd">がくせい・だいがくせい</span></div><div class="mn">학생 · 대학생</div></div>
+        <div class="row"><div class="lead"><span class="w">主婦・会社員</span><span class="rd">しゅふ・かいしゃいん</span></div><div class="mn">주부 · 회사원</div></div>
+        <div class="row"><div class="lead"><span class="w">銀行員・医者</span><span class="rd">ぎんこういん・いしゃ</span></div><div class="mn">은행원 · 의사</div></div>
+        <div class="row"><div class="lead"><span class="w">歌手・スポーツ選手</span><span class="rd">かしゅ・せんしゅ</span></div><div class="mn">가수 · 스포츠 선수</div></div>
+        <div class="row"><div class="lead"><span class="w">韓国・中国・日本</span><span class="rd">かんこく・ちゅうごく・にほん</span></div><div class="mn">한국 · 중국 · 일본</div></div>
+        <div class="row"><div class="lead"><span class="w">~語・~人</span><span class="rd">~ご・~じん</span></div><div class="mn">~어 · ~인 (韓国語, 日本人)</div></div>
+      </div>
+      <div class="note"><span class="tag">한 글자씩 외우기</span><p>학=<span class="jp">がく</span>, 생=<span class="jp">せい</span> → 学生=がくせい. 이 방식으로 외우면 모르는 단어(医学=いがく 등)도 조합해 만들 수 있습니다.</p></div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">05</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">2과 본문 · 자기소개</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">ミキ</div><div class="j">はじめまして。ミキです。よろしくお願いします。</div><div class="k">처음 뵙겠습니다. 미키입니다. 잘 부탁드립니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">こちらこそ。よろしくお願いします。</div><div class="k">저야말로(이쪽이야말로). 잘 부탁드립니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">キムさんは日本の方ですか。</div><div class="k">김 씨는 일본 분입니까?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">いいえ、日本人じゃないです。韓国人です。</div><div class="k">아니요, 일본인이 아닙니다. 한국인입니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">お仕事は何ですか。</div><div class="k">직업은 무엇입니까? (お仕事=직업 높임)</div></div>
+        <div class="line"><div class="who">金</div><div class="j">私は大学生です。</div><div class="k">저는 대학생입니다.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 3과 ==================== -->
+  <div class="panel" id="p3" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Numbers</p>
+        <h2 class="sec-title">숫자 · 전화번호</h2>
+        <p class="sec-sub">0은 상황별로 셋. 100까지는 규칙적.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">0</td><td class="jp"><span class="out">ゼロ</span>(전화) · <span class="out">れい</span>(점수) · <span class="out">まる</span>(호실 501=ごまるいち)</td></tr>
+          <tr><td class="grp">10 · 20 · 100</td><td class="jp">じゅう · にじゅう · <span class="out">ひゃく</span></td></tr>
+        </table>
+        <div class="note"><span class="tag">Vocabulary — 電</span><p><span class="jp">電話(でんわ)</span> 전화 · <span class="jp">電車(でんしゃ)</span> 전철 · <span class="jp">電気(でんき)</span> 전기 · <span class="jp">会話(かいわ)</span> 대화. 전화번호 = <span class="jp">電話番号(でんわばんごう)</span>, 하이픈은 <span class="jp">の</span>. 개인번호는 070·080·090. 범죄신고 110(ひゃくとおばん), 화재 119.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">これ / の 세 가지</h2>
+        <p class="sec-sub">これ·それ·あれ·どれ (이거·그거·저거·어느 거). の는 세 용법.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">① 명사 수식</td><td class="jp">日本語<span class="out">の</span>本 (일본어 책)</td></tr>
+          <tr><td class="grp">② 소유격 (~의)</td><td class="jp">私<span class="out">の</span>本 (내 책) · 誰<span class="out">の</span> (누구의)</td></tr>
+          <tr><td class="grp">③ ~것</td><td class="jp">私<span class="out">の</span>です (제 겁니다) · 何<span class="out">の</span>(=무슨)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">これは<span class="hl">誰の</span>ケータイですか。 — 私<span class="hl">の</span>です。</div><div class="r">これは だれの ケータイですか / わたしのです</div><div class="k">이건 누구의 핸드폰입니까? — 제 겁니다.</div></li>
+        </ul>
+        <div class="note"><span class="tag">Point</span><p>「무엇」은 <span class="jp">何(なに)</span>인데 の가 붙으면 <span class="jp">何の(なんの)</span>. 종류를 나타낼 땐 の가 빠짐 (韓国料理, サッカーボール).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">3과 단어 · 물건</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">本・雑誌・辞書</span><span class="rd">ほん・ざっし・じしょ</span></div><div class="mn">책 · 잡지 · 사전</div></div>
+        <div class="row"><div class="lead"><span class="w">写真・メガネ</span><span class="rd">しゃしん</span></div><div class="mn">사진 · 안경 (目=め 눈)</div></div>
+        <div class="row"><div class="lead"><span class="w">財布・鍵</span><span class="rd">さいふ・かぎ</span></div><div class="mn">지갑 · 열쇠</div></div>
+        <div class="row"><div class="lead"><span class="w">時計・傘・帽子</span><span class="rd">とけい・かさ・ぼうし</span></div><div class="mn">시계 · 우산 · 모자</div></div>
+        <div class="row"><div class="lead"><span class="w">車・カバン</span><span class="rd">くるま</span></div><div class="mn">자동차 · 가방</div></div>
+        <div class="row"><div class="lead"><span class="w">アプリ・ケータイ</span><span class="rd"></span></div><div class="mn">앱 · 휴대폰</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">3과 본문 · 누구 핸드폰</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">ミキ</div><div class="j">これは誰のケータイですか。</div><div class="k">이건 누구의 핸드폰입니까?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">あ、私のです。</div><div class="k">아, 제 겁니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">これは韓国のですか。</div><div class="k">이건 한국 겁니까? (삼성이냐)</div></div>
+        <div class="line"><div class="who">金</div><div class="j">いいえ、日本のです。</div><div class="k">아니요, 일본 겁니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">写真のアプリも日本のですか。</div><div class="k">사진 앱도 일본 겁니까?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">いいえ、それは韓国の人気のアプリです。</div><div class="k">아니요, 그건 한국 인기 앱입니다. (명사가 이어지면 の 계속)</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 4과 ==================== -->
+  <div class="panel" id="p4" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · い-adjective</p>
+        <h2 class="sec-title">い형용사 활용</h2>
+        <p class="sec-sub">い로 끝남. 명사 수식은 그대로 (おいしいコーヒー).</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">부정</td><td class="jp">い → <span class="out">くない(です)</span> (高い→高くない)</td></tr>
+          <tr><td class="grp">과거</td><td class="jp">い → <span class="out">かった</span> (高い→高かった)</td></tr>
+          <tr><td class="grp">부정 과거</td><td class="jp">い → <span class="out">くなかった</span></td></tr>
+          <tr><td class="grp">예외 いい</td><td class="jp"><span class="out">よくない · よかった · よくなかった</span> (よ로 활용)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">この車は<span class="hl">安くない</span>ですが、あの車は<span class="hl">安い</span>です。</div><div class="r">このくるまは やすくないですが、あのくるまは やすいです</div><div class="k">이 차는 싸지 않지만, 저 차는 쌉니다.</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">が · この · どんな</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">が · 명사 뒤</td><td class="jp">~이/가 (天気<span class="out">が</span>いい)</td></tr>
+          <tr><td class="grp">が · 문장 뒤</td><td class="jp">~지만 (おいしいです<span class="out">が</span>高い). 회화는 <span class="out">けど</span> 더 많이</td></tr>
+          <tr><td class="grp">この·その·あの·どの</td><td class="jp">이·그·저·어느 (명사 수식)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">この店は人が多いですね。<span class="hl">どんな</span>お店ですか。</div><div class="r">このみせは ひとが おおいですね。どんな おみせですか</div><div class="k">이 가게는 사람이 많네요. 어떤 가게입니까? (どんな 어떤, どうですか 어때요)</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">4과 단어 · い형용사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">高い・安い</span><span class="rd">たかい・やすい</span></div><div class="mn">비싸다 · 싸다</div></div>
+        <div class="row"><div class="lead"><span class="w">近い・遠い</span><span class="rd">ちかい・とおい</span></div><div class="mn">가깝다 · 멀다</div></div>
+        <div class="row"><div class="lead"><span class="w">おいしい・いい・悪い</span><span class="rd">わるい</span></div><div class="mn">맛있다 · 좋다 · 나쁘다</div></div>
+        <div class="row"><div class="lead"><span class="w">新しい・古い</span><span class="rd">あたらしい・ふるい</span></div><div class="mn">새롭다 · 낡다</div></div>
+        <div class="row"><div class="lead"><span class="w">大きい・小さい</span><span class="rd">おおきい・ちいさい</span></div><div class="mn">크다 · 작다</div></div>
+        <div class="row"><div class="lead"><span class="w">多い・少ない</span><span class="rd">おおい・すくない</span></div><div class="mn">많다 · 적다</div></div>
+        <div class="row"><div class="lead"><span class="w">辛い・甘い</span><span class="rd">からい・あまい</span></div><div class="mn">맵다 · 달다</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">4과 본문 · 떡볶이 가게</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">ミキ</div><div class="j">この店は人が多いですね。何のお店ですか。</div><div class="k">이 가게는 사람이 많네요. 무슨 가게입니까?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">トッポッキのお店です。</div><div class="k">떡볶이 가게입니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">トッポッキはどんな料理ですか。</div><div class="k">떡볶이는 어떤 요리입니까?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">少し甘いですが、おいしい料理です。</div><div class="k">조금 달지만, 맛있는 요리입니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">辛くないですか。</div><div class="k">맵지 않아요?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">私は全然辛くないです。</div><div class="k">저는 전혀 안 매워요. (全然=ぜんぜん 전혀)</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 5과 ==================== -->
+  <div class="panel" id="p5" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · な-adjective</p>
+        <h2 class="sec-title">な형용사 활용</h2>
+        <p class="sec-sub">だ로 끝남. 활용은 명사와 동일. 명사 수식은 だ→な.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">정중</td><td class="jp">だ → <span class="out">です</span> (静かです)</td></tr>
+          <tr><td class="grp">부정</td><td class="jp">だ → <span class="out">じゃない(です)</span></td></tr>
+          <tr><td class="grp">과거 / 부정과거</td><td class="jp"><span class="out">だった</span> / <span class="out">じゃなかった</span></td></tr>
+          <tr><td class="grp">명사 수식</td><td class="jp">だ → <span class="out">な</span> (静か<b>な</b>部屋)</td></tr>
+        </table>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">시간 · から~まで · 부사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">시간 (예외)</td><td class="jp">4時=<span class="out">よじ</span> · 7時=<span class="out">しちじ</span> · 9時=<span class="out">くじ</span></td></tr>
+          <tr><td class="grp">から ~ まで</td><td class="jp">에서 ~ 까지 (韓国から日本まで)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">午前(ごぜん) 오전 · 午後(ごご) 오후 · 今(いま) 지금</div><div class="k">首都(しゅと) 수도. どんな(어떤).</div></li>
+        </ul>
+        <div class="note real"><span class="tag">실전 · 부사</span><p><span class="jp">とても</span>(매우)보다 회화는 <span class="hot">すごく</span>(엄청)를 훨씬 많이 씀 · <span class="jp">少し</span> 조금 · <span class="jp">ちょっと</span> 좀 · <span class="jp">あまり</span> 별로(+부정) · <span class="jp">そんなに</span> 그렇게 · <span class="jp">全然</span> 전혀. <span class="jp">まじ·めっちゃ</span>는 친구 사이에만.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">5과 단어 · な형용사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">便利だ・不便だ</span><span class="rd">べんり・ふべん</span></div><div class="mn">편리하다 · 불편하다</div></div>
+        <div class="row"><div class="lead"><span class="w">楽だ・大変だ</span><span class="rd">らく・たいへん</span></div><div class="mn">편하다 · 힘들다·큰일이다</div></div>
+        <div class="row"><div class="lead"><span class="w">変だ・丈夫だ</span><span class="rd">へん・じょうぶ</span></div><div class="mn">이상하다 · 튼튼하다</div></div>
+        <div class="row"><div class="lead"><span class="w">大丈夫だ・暇だ</span><span class="rd">だいじょうぶ・ひま</span></div><div class="mn">괜찮다 · 한가하다</div></div>
+        <div class="row"><div class="lead"><span class="w">静かだ・賑やかだ</span><span class="rd">しずか・にぎやか</span></div><div class="mn">조용하다 · 번화하다</div></div>
+        <div class="row"><div class="lead"><span class="w">有名だ・綺麗だ</span><span class="rd">ゆうめい・きれい</span></div><div class="mn">유명하다 · 깨끗·예쁘다</div></div>
+        <div class="row"><div class="lead"><span class="w">新鮮だ・簡単だ</span><span class="rd">しんせん・かんたん</span></div><div class="mn">신선하다 · 쉽다(간단)</div></div>
+        <div class="row"><div class="lead"><span class="w">駅・地下鉄・公園</span><span class="rd">えき・ちかてつ・こうえん</span></div><div class="mn">역 · 지하철 · 공원</div></div>
+      </div>
+      <div class="note"><span class="tag">Note</span><p><span class="jp">綺麗だ(きれい)</span>는 다로 끝나는 <b>な형용사</b> (きれいな部屋). 사람 칭찬엔 <span class="jp">可愛い(かわいい)</span>, 멋짐엔 <span class="jp">かっこいい</span>가 더 자연스러움.</p></div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">5과 본문 · 유명한 호텔</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">金</div><div class="j">ここは有名なホテルですか。</div><div class="k">여기는 유명한 호텔입니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">はい、すごく有名なホテルです。</div><div class="k">네, 엄청 유명한 호텔입니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">駅から近いですか。</div><div class="k">역에서 가깝습니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">はい、すごく近いです。5分です。</div><div class="k">네, 엄청 가깝습니다. 5분입니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">部屋は綺麗ですか。</div><div class="k">방은 깨끗합니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">いいえ、あまり綺麗じゃないですが、静かな部屋です。</div><div class="k">아니요, 별로 깨끗하지 않지만, 조용한 방입니다.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 6과 ==================== -->
+  <div class="panel" id="p6" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Connecting</p>
+        <h2 class="sec-title">형용사 연결 (~고 / ~서)</h2>
+        <p class="sec-sub">「~고, ~서」는 で / くて.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">명사·な형용사</td><td class="jp">+ <span class="out">で</span> (親切で有名です)</td></tr>
+          <tr><td class="grp">い형용사</td><td class="jp">い → <span class="out">くて</span> (面白くて可愛い / いい→よくて)</td></tr>
+        </table>
+      </div>
+      <div class="unit">
+        <p class="unit-h">好き·上手 앞엔 が <span class="en">not を</span></p>
+        <p class="rule">기호·능력을 나타내는 <span class="jp">好き·嫌い·上手·下手</span> 앞에는 을(를)이 아니라 <b>が</b>.</p>
+        <ul class="ex">
+          <li><div class="j">私はお茶<span class="hl">が</span>好きです。</div><div class="r">わたしは おちゃが すきです</div><div class="k">저는 차를 좋아합니다.</div></li>
+        </ul>
+        <div class="note real"><span class="tag">실전</span><p>내 능력은 <span class="jp">上手(じょうず)</span>보다 <span class="hot">得意(とくい)</span>, 못함은 <span class="jp">下手(へた)</span>보다 <span class="hot">苦手(にがて)</span>(안 맞음)를 더 많이 씀.</p></div>
+      </div>
+      <div class="unit">
+        <p class="unit-h">이유 · どうして / ~から</p>
+        <p class="rule">왜 = <span class="jp">どうして·なんで</span>(회화) / <span class="jp">なぜ</span>(문어). 문장 + <span class="jp">から</span> = ~니까/때문에. (명사+から = ~부터·에서)</p>
+        <ul class="ex">
+          <li><div class="j">面白い<span class="hl">から</span> / 親切だ<span class="hl">から</span> / 友達だ<span class="hl">から</span></div><div class="k">재밌으니까 / 친절하니까 / 친구니까 (명사·な는 だから)</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">6과 본문 · 후쿠오카</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">金</div><div class="j">ミキさんは日本のどこが一番好きですか。</div><div class="k">미키 씨는 일본 어디를 가장 좋아합니까? (一番=いちばん 가장)</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">私は福岡が好きです。</div><div class="k">저는 후쿠오카를 좋아합니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">どうしてですか。</div><div class="k">어째서입니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">福岡は韓国から近くて、美味しい料理も多いからです。</div><div class="k">후쿠오카는 한국에서 가깝고, 맛있는 요리도 많기 때문입니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">何が美味しいですか。</div><div class="k">무엇이 맛있습니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">豚骨ラーメンが有名で美味しいです。それから、餃子ももつ鍋も美味しいです。</div><div class="k">돈코츠 라멘이 유명하고 맛있습니다. 그리고 교자도 곱창전골도 맛있습니다. (それから 그리고, ~も~も ~도 ~도)</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 12과 ==================== -->
+  <div class="panel" id="p12" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Verbs</p>
+        <h2 class="sec-title">동사 그룹 분류</h2>
+        <p class="sec-sub">동사는 う단으로 끝남. 세 그룹.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">3그룹 (불규칙)</td><td class="jp">する(하다) · 来る(くる, 오다) — 딱 둘</td></tr>
+          <tr><td class="grp">2그룹</td><td class="jp">る 앞이 <b>い단·え단</b> (食べる · 見る · 起きる)</td></tr>
+          <tr><td class="grp">1그룹</td><td class="jp">나머지 (行く·飲む·会う·遊ぶ…) + 예외 (帰る·入る·走る·知る…)</td></tr>
+        </table>
+        <div class="note"><span class="tag">Point</span><p>る로 안 끝나면 무조건 1그룹. る로 끝나도 앞이 <b>あ·う·お단</b>이면 1그룹 (乗る·分かる). 겉은 2그룹처럼 생겼지만 1그룹인 <b>예외 1그룹</b>도 있음 (帰る·入る·走る·知る).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">ます형 · ない형</h2>
+        <p class="sec-sub">ます=정중, ない=반말 부정.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">3그룹</td><td class="jp">する→<span class="out">します</span>/<span class="out">しない</span> · 来る→<span class="out">きます</span>/<span class="out">こない</span></td></tr>
+          <tr><td class="grp">2그룹</td><td class="jp">る 떼고 +ます/ない (食べる→食べます/食べない)</td></tr>
+          <tr><td class="grp">1그룹 ます</td><td class="jp">う단→<b>い단</b>+ます (行く→行きます · 飲む→飲みます)</td></tr>
+          <tr><td class="grp">1그룹 ない</td><td class="jp">う단→<b>あ단</b>+ない (飲む→飲まない · 会う→<span class="out">会わない</span>)</td></tr>
+        </table>
+        <div class="note"><span class="tag">Point</span><p>ます 활용: 부정 <span class="jp">~ません</span>, 과거 <span class="jp">~ました</span>, 부정과거 <span class="jp">~ませんでした</span>. <span class="jp">ある→ない</span>(없다, あらない X), <span class="jp">いる→いない</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Particles</p>
+        <h2 class="sec-title">조사 정리 · で / から · 요일</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">を(오)</td><td class="jp">을/를 · へ(→に) 에 · に 에게 · より 보다</td></tr>
+          <tr><td class="grp">で</td><td class="jp">수단(バスで) · 장소(で, 머묾) · 합계(全部で)</td></tr>
+          <tr><td class="grp">から ↔ で</td><td class="jp">벗어남=から(降りる) / 머묾=で(勉強する)</td></tr>
+        </table>
+        <div class="note"><span class="tag">요일 · 曜日(ようび)</span><p><span class="jp">月(げつ)・火(か)・水(すい)・木(もく)・金(きん)・土(ど)・日(にち)</span> + 曜日. 「~지만」은 <span class="jp">が/けど</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">12과 단어 · 동사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">勉強する・掃除する</span><span class="rd">べんきょう・そうじ</span></div><div class="mn">공부하다 · 청소하다 (3그룹)</div></div>
+        <div class="row"><div class="lead"><span class="w">起きる・寝る・食べる</span><span class="rd">おきる・ねる・たべる</span></div><div class="mn">일어나다·자다·먹다 (2그룹)</div></div>
+        <div class="row"><div class="lead"><span class="w">飲む・買う・行く</span><span class="rd">のむ・かう・いく</span></div><div class="mn">마시다·사다·가다 (1그룹)</div></div>
+        <div class="row"><div class="lead"><span class="w">地下鉄に乗る</span><span class="rd">ちかてつにのる</span></div><div class="mn">지하철을 타다 (乗る 앞엔 に)</div></div>
+        <div class="row"><div class="lead"><span class="w">帰る・入る・走る</span><span class="rd">かえる・はいる・はしる</span></div><div class="mn">돌아가다·들어가다·달리다 (예외 1그룹)</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">05</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">12과 본문 · 시부야</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">A</div><div class="j">今週の土曜日は暇ですか。</div><div class="k">이번 주 토요일은 한가합니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">土曜日は友達と渋谷に行きます。</div><div class="k">토요일은 친구와 시부야에 갑니다.</div></div>
+        <div class="line"><div class="who">A</div><div class="j">渋谷にはよく行きますか。</div><div class="k">시부야에는 자주 갑니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">渋谷は面白いお店が多いから、たまに行きます。</div><div class="k">시부야는 재밌는 가게가 많아서, 가끔 갑니다. (たまに 가끔)</div></div>
+        <div class="line"><div class="who">A</div><div class="j">日曜日も約束がありますか。</div><div class="k">일요일도 약속이 있습니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">いいえ、約束はありませんけど、図書館でテストの勉強をします。</div><div class="k">아니요, 약속은 없지만, 도서관에서 시험 공부를 합니다.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 16과 ==================== -->
+  <div class="panel" id="p16" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · て-form</p>
+        <h2 class="sec-title">동사 て형 (연결)</h2>
+        <p class="sec-sub">「~하고, ~해서」. 익숙해질 때까지 입으로 반복.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">3그룹</td><td class="jp">する→<span class="out">して</span> · 来る→<span class="out">きて</span></td></tr>
+          <tr><td class="grp">2그룹</td><td class="jp">る 떼고 +て (食べる→食べて)</td></tr>
+          <tr><td class="grp">く / ぐ</td><td class="jp">書く→<span class="out">書いて</span> · 泳ぐ→<span class="out">泳いで</span></td></tr>
+          <tr><td class="grp">す</td><td class="jp">話す→<span class="out">話して</span></td></tr>
+          <tr><td class="grp">ぬ · ぶ · む</td><td class="jp">→<span class="out">んで</span> (飲む→飲んで · 遊ぶ→遊んで)</td></tr>
+          <tr><td class="grp">う · つ · る</td><td class="jp">→<span class="out">って</span> (会う→会って · 待つ→待って · 乗る→乗って)</td></tr>
+          <tr><td class="grp">예외</td><td class="jp">行く→<span class="out">行って</span></td></tr>
+        </table>
+        <div class="note"><span class="tag">Point</span><p><b>과거형(た형)</b>은 て형의 て를 た로 바꾸면 됨 (書いて→書いた, 飲んで→飲んだ).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">~てください · 위치·방향</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <p class="rule">て형 + <span class="jp">ください</span> = ~하세요/해 주세요 (명령·부탁 뉘앙스). 아주 정중한 부탁은 <span class="jp">~ていただけますか</span>.</p>
+        <ul class="ex">
+          <li><div class="j">日本語で<span class="hl">話してください</span>。 / 名前を<span class="hl">書いてください</span>。</div><div class="k">일본어로 이야기하세요. / 이름을 써 주세요.</div></li>
+        </ul>
+        <div class="note"><span class="tag">위치 · 방향</span><p><span class="jp">上(うえ)·下(した)·右(みぎ)·左(ひだり)·前(まえ)·後ろ(うしろ)·中(なか)·外(そと)·隣(となり)·向かい(むかい 건너편)·斜め(ななめ 대각선)</span>. 방위: <span class="jp">東(ひがし)·西(にし)·南(みなみ)·北(きた)</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">16과 단어 · 동사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">漢字を覚える</span><span class="rd">かんじをおぼえる</span></div><div class="mn">한자를 외우다</div></div>
+        <div class="row"><div class="lead"><span class="w">手を上げる</span><span class="rd">てをあげる</span></div><div class="mn">손을 들다 (上げる 올리다)</div></div>
+        <div class="row"><div class="lead"><span class="w">本を閉じる・開く</span><span class="rd">とじる・ひらく</span></div><div class="mn">책을 덮다 · 펼치다</div></div>
+        <div class="row"><div class="lead"><span class="w">話を聞く</span><span class="rd">はなしをきく</span></div><div class="mn">이야기를 듣다 (聞く=듣다·묻다)</div></div>
+        <div class="row"><div class="lead"><span class="w">名前を書く・宿題を出す</span><span class="rd">かく・だす</span></div><div class="mn">이름을 쓰다 · 숙제를 내다</div></div>
+        <div class="row"><div class="lead"><span class="w">立つ・座る</span><span class="rd">たつ・すわる</span></div><div class="mn">서다 · 앉다 (椅子に座る)</div></div>
+        <div class="row"><div class="lead"><span class="w">休む・分かる</span><span class="rd">やすむ・わかる</span></div><div class="mn">쉬다 · 알다</div></div>
+      </div>
+      <div class="note"><span class="tag">Note</span><p>「알겠습니다」는 과거형 <span class="jp">分かりました</span> (分かります는 「압니다」라 무례하게 들림). 学ぶ(まなぶ) 익히다 / 習う(ならう) 배우다.</p></div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">16과 본문 · 수업 시작</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">先生</div><div class="j">皆さん、今から席に座って、先生の話をよく聞いてください。</div><div class="k">여러분, 지금부터 자리에 앉아서 선생님 이야기를 잘 들으세요.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">はい、分かりました。</div><div class="k">네, 알겠습니다.</div></div>
+        <div class="line"><div class="who">先生</div><div class="j">今から単語のテストをします。一番上に名前を書いてください。</div><div class="k">지금부터 단어 시험을 하겠습니다. 제일 위에 이름을 써 주세요.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">名前は漢字で書きますか。</div><div class="k">이름은 한자로 씁니까?</div></div>
+        <div class="line"><div class="who">先生</div><div class="j">いいえ、カタカナで書いてください。先に名前を書いて、単語を書いてください。</div><div class="k">아니요, 가타카나로 써 주세요. 먼저 이름을 쓰고, 단어를 쓰세요. (先に=さきに 먼저)</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">05</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · 17·18과</p>
+        <h2 class="sec-title">~てもいい 계열 (허가·금지·완료·진행)</h2>
+        <p class="sec-sub">모두 て형 기반. 회화에선 크게 줄여 씁니다.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">허가 · 해도 됨</td><td class="jp">~ても<span class="out">いいです</span> → 회화 ~ていいです (も 생략)</td></tr>
+          <tr><td class="grp">금지 · 안 됨</td><td class="jp">~ては<span class="out">いけません</span> → 회화 ~<span class="out">ちゃだめ</span> (ては→ちゃ · いけない→だめ)</td></tr>
+          <tr><td class="grp">완료 · 해버림</td><td class="jp">~て<span class="out">しまいました</span> → 회화 ~<span class="out">ちゃいました</span> (てしまう→ちゃう)</td></tr>
+          <tr><td class="grp">진행 · 하고 있음</td><td class="jp">~て<span class="out">います</span> → 회화 ~<span class="out">てます</span> (い 생략)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">このコーヒー、<span class="hl">飲んでもいいですか</span>。</div><div class="r">この コーヒー、のんでも いいですか</div><div class="k">이 커피 마셔도 됩니까?</div></li>
+          <li><div class="j">それ、腐っているから<span class="hl">飲んではいけません</span>。 (회화 腐ってるから飲んじゃだめ)</div><div class="r">それ、くさっているから のんでは いけません</div><div class="k">그거 썩었으니까 마시면 안 됩니다.</div></li>
+          <li><div class="j">あ、もう<span class="hl">飲んでしまいました</span>。 (회화 飲んじゃいました)</div><div class="r">あ、もう のんで しまいました</div><div class="k">아, 벌써 마셔버렸습니다. (もう 벌써·이제·더 이상)</div></li>
+          <li><div class="j">あの人も<span class="hl">飲んでいます</span>。 (회화 飲んでます)</div><div class="r">あの ひとも のんで います</div><div class="k">저 사람도 마시고 있어요.</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">06</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reference · 총정리</p>
+        <h2 class="sec-title">품사별 활용 한눈에</h2>
+        <p class="sec-sub">기본형 → 부정 → 과거 → 부정과거 → 연결(て). 반말 기준(+です/ます면 정중).</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">명사 (人)</td><td class="jp">人だ · 人<span class="out">じゃない</span> · 人<span class="out">だった</span> · 人<span class="out">じゃなかった</span> · 人<span class="out">で</span></td></tr>
+          <tr><td class="grp">な형용사 (変だ)</td><td class="jp">変だ · 変<span class="out">じゃない</span> · 変<span class="out">だった</span> · 変<span class="out">じゃなかった</span> · 変<span class="out">で</span></td></tr>
+          <tr><td class="grp">い형용사 (暑い)</td><td class="jp">暑い · 暑<span class="out">くない</span> · 暑<span class="out">かった</span> · 暑<span class="out">くなかった</span> · 暑<span class="out">くて</span></td></tr>
+          <tr><td class="grp">동사 · 정중 (ます)</td><td class="jp">~ます · ~<span class="out">ません</span> · ~<span class="out">ました</span> · ~<span class="out">ませんでした</span></td></tr>
+          <tr><td class="grp">동사 · 반말</td><td class="jp">기본형(う단) · ~<span class="out">ない</span> · ~<span class="out">た</span> · ~<span class="out">なかった</span> · ~<span class="out">て</span></td></tr>
+        </table>
+        <div class="note"><span class="tag">핵심</span><p>부정=<b>ない</b>가 들어감 · 과거=<b>た</b>로 끝남 · 연결=<b>て</b>. 이 세 가지만 잡으면 명사·형용사·동사 모두 반말↔존댓말을 자유롭게 오갈 수 있습니다. 동사는 <b>ます형(정중)·ない형(부정)·て형(연결)</b> 세 활용이 전부.</p></div>
+        <p style="margin-top:40px"><a class="top" href="#" onclick="window.scrollTo({top:0});return false;">↑ Back to top</a></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 19과 ==================== -->
+  <div class="panel" id="p19" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Giving</p>
+        <h2 class="sec-title">주다 · あげる / くれる</h2>
+        <p class="sec-sub">방향에 따라 둘로 나뉨.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">くれる</td><td class="jp"><span class="out">남 → 나(우리 쪽)</span></td></tr>
+          <tr><td class="grp">あげる</td><td class="jp"><span class="out">나 → 남</span> / <span class="out">남 → 남</span></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">彼は私に本を<span class="hl">くれる</span>。 = 私は彼に本を<span class="hl">もらう</span>。</div><div class="r">かれは わたしに ほんを くれる / わたしは かれに もらう</div><div class="k">그는 나에게 준다 = 나는 그에게 받는다. 받다는 もらう 하나.</div></li>
+          <li><div class="j">母は私に服を<span class="hl">買ってくれました</span>。</div><div class="r">ははは わたしに ふくを かってくれました</div><div class="k">엄마는 나에게 옷을 사 주었습니다. (て형+くれる 행위 주고받기)</div></li>
+        </ul>
+        <div class="note real"><span class="tag">실전</span><p>내가 남에게 해줌(~てあげる)은 내려다보는 느낌이라 잘 안 씀. <span class="hot">~てもらう · ~てくれる</span>를 훨씬 많이 씀. 단, 그 자리에 없는 제3자에게는 ~てあげましょう도 자연스러움. ~にする(결정), ~ましょう(か)(권유), ~ませんか(제안).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">19과 단어</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">お金を貸す・借りる</span><span class="rd">かす・かりる</span></div><div class="mn">돈을 빌려주다 · 빌리다</div></div>
+        <div class="row"><div class="lead"><span class="w">おごる</span><span class="rd"></span></div><div class="mn">한턱내다 (술·음식만)</div></div>
+        <div class="row"><div class="lead"><span class="w">手伝う・教える</span><span class="rd">てつだう・おしえる</span></div><div class="mn">돕다 · 가르치다</div></div>
+        <div class="row"><div class="lead"><span class="w">見せる</span><span class="rd">みせる</span></div><div class="mn">보여주다</div></div>
+        <div class="row"><div class="lead"><span class="w">先輩・後輩・誕生日</span><span class="rd">せんぱい・こうはい・たんじょうび</span></div><div class="mn">선배·후배·생일</div></div>
+        <div class="row"><div class="lead"><span class="w">香水・内緒・秘密</span><span class="rd">こうすい・ないしょ・ひみつ</span></div><div class="mn">향수 · 비밀(가벼운·무거운)</div></div>
+        <div class="row"><div class="lead"><span class="w">妹・弟</span><span class="rd">いもうと・おとうと</span></div><div class="mn">여동생 · 남동생</div></div>
+      </div>
+      <div class="note"><span class="tag">「것」 네 가지</span><p><span class="jp">こと</span> 행위 · <span class="jp">もの</span> 물체 · <span class="jp">の</span> 애매 · <span class="jp">やつ</span> 앞서 말한 것(회화).</p></div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">19과 본문 · 서프라이즈</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">田中</div><div class="j">もうすぐミキさんの誕生日ですね。みんなでサプライズしませんか。</div><div class="k">이제 곧 미키 씨 생일이네요. 다 같이 서프라이즈 안 할래요?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">いいですね。私もこの前サプライズしてもらって、すごく嬉しかったです。</div><div class="k">좋네요. 저도 요전에 서프라이즈 받아서 엄청 기뻤어요.</div></div>
+        <div class="line"><div class="who">田中</div><div class="j">プレゼントは何にしましょうか。</div><div class="k">선물은 뭘로 할까요?</div></div>
+        <div class="line"><div class="who">金</div><div class="j">ミキさんは香水が好きだから、香水と手作りケーキはどうですか。</div><div class="k">미키 씨는 향수를 좋아하니까, 향수와 수제 케이크는 어때요?</div></div>
+        <div class="line"><div class="who">田中</div><div class="j">いいですね。それにしましょう。ケーキは私も手伝います。ミキさんの好きなチョコケーキを作ってあげましょう。</div><div class="k">좋네요. 그걸로 합시다. 케이크는 저도 도울게요. 미키 씨가 좋아하는 초코 케이크를 만들어 줍시다.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 20과 ==================== -->
+  <div class="panel" id="p20" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Experience</p>
+        <h2 class="sec-title">~た + ことがある · 경험</h2>
+        <p class="sec-sub">과거형(た) + ことがある/ない. 있다=ある, 없다=ない (いる X).</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">日本に<span class="hl">行ったことがあります</span>。</div><div class="r">にほんに いったことが あります</div><div class="k">일본에 간 적이 있습니다.</div></li>
+          <li><div class="j">マスクを<span class="hl">したまま</span>話します。</div><div class="r">マスクを したまま はなします</div><div class="k">마스크를 한 채로 이야기합니다. (~た+まま ~한 채로)</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">20과 단어</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">外国に行く</span><span class="rd">がいこく</span></div><div class="mn">외국에 가다</div></div>
+        <div class="row"><div class="lead"><span class="w">コロナにかかる</span><span class="rd"></span></div><div class="mn">코로나 걸리다 (감기는 風邪をひく)</div></div>
+        <div class="row"><div class="lead"><span class="w">芸能人に会う</span><span class="rd">げいのうじん</span></div><div class="mn">연예인 만나다</div></div>
+        <div class="row"><div class="lead"><span class="w">店の前に並ぶ</span><span class="rd">みせのまえにならぶ</span></div><div class="mn">가게 앞에 줄서다</div></div>
+        <div class="row"><div class="lead"><span class="w">サングラスをかける</span><span class="rd"></span></div><div class="mn">선글라스를 쓰다 (かける 걸다)</div></div>
+        <div class="row"><div class="lead"><span class="w">電気をつける</span><span class="rd">でんきをつける</span></div><div class="mn">불을 켜다 (点ける, 원뜻 붙이다)</div></div>
+        <div class="row"><div class="lead"><span class="w">荷物を置く・降りる</span><span class="rd">にもつをおく・おりる</span></div><div class="mn">짐을 두다 · 내리다</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">20과 본문 · 맛집 웨이팅</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">金</div><div class="j">この店はいつも人が並んでいますね。</div><div class="k">이 가게는 항상 사람이 줄서 있네요.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">せっかくここまで来たから、食べていきませんか。</div><div class="k">이왕 여기까지 왔으니까, 먹고 가지 않을래요? (せっかく 이왕)</div></div>
+        <div class="line"><div class="who">金</div><div class="j">そうしましょう。私はここで食べたことがありますが、本当においしかったです。</div><div class="k">그렇게 합시다. 저는 여기서 먹은 적이 있는데, 정말 맛있었어요.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">どのくらい待つかな。立ったまま30分は少し大変ですね。</div><div class="k">어느 정도 기다리려나. 선 채로 30분은 좀 힘들겠네요.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">でも、おいしいラーメンが待っているから、頑張りましょう。早く食べたいですね。</div><div class="k">그래도 맛있는 라멘이 기다리고 있으니까, 힘냅시다. 빨리 먹고 싶네요.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 22과 ==================== -->
+  <div class="panel" id="p22" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Sequence</p>
+        <h2 class="sec-title">~前に / ~後で · 의문사</h2>
+        <p class="sec-sub">하기 전=원형+前に, 한 후=과거형+後で.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">運動<span class="hl">する前に</span>ご飯を食べ、<span class="hl">した後で</span>電話します。</div><div class="r">うんどう するまえに / したあとで</div><div class="k">운동하기 전에 밥을 먹고, 한 후에 전화합니다.</div></li>
+        </ul>
+        <table class="conj">
+          <tr><td class="grp">+ か (~인가)</td><td class="jp">何か · どこか · 誰か · いつか</td></tr>
+          <tr><td class="grp">+ も (아무~)</td><td class="jp">何も · どこにも · 誰も · いつも(항상)</td></tr>
+          <tr><td class="grp">+ でも (~든지)</td><td class="jp">何でも · どこでも · 誰でも · いつでも</td></tr>
+        </table>
+        <div class="note real"><span class="tag">실전 · 회화 줄임말</span><p><span class="hot">~てはいけません → ~ちゃだめ</span> · <span class="hot">~てしまう → ~ちゃう</span> · <span class="hot">~ている → ~てる</span> (い 탈락, 원어민은 거의 이렇게).</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">22과 단어</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">仕事が終わる</span><span class="rd">おわる</span></div><div class="mn">일이 끝나다</div></div>
+        <div class="row"><div class="lead"><span class="w">プールで泳ぐ・浴びる</span><span class="rd">およぐ・あびる</span></div><div class="mn">수영하다 · (샤워)하다</div></div>
+        <div class="row"><div class="lead"><span class="w">顔を洗う・歯を磨く</span><span class="rd">あらう・みがく</span></div><div class="mn">얼굴을 씻다 · 이를 닦다</div></div>
+        <div class="row"><div class="lead"><span class="w">服を着る・靴を履く</span><span class="rd">きる・はく</span></div><div class="mn">옷을 입다 · 신발을 신다</div></div>
+        <div class="row"><div class="lead"><span class="w">ジムで運動・筋トレ</span><span class="rd">きんトレ</span></div><div class="mn">헬스장 운동 · 근력운동</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">22과 본문 · 헬스장</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">A</div><div class="j">仕事が終わった後で、何をしますか。</div><div class="k">일이 끝난 후에 무엇을 합니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">ジムで筋トレをしています。</div><div class="k">헬스장에서 근력운동을 하고 있어요.</div></div>
+        <div class="line"><div class="who">A</div><div class="j">偉いですね。ジムに行く前に、何か食べますか。</div><div class="k">장하네요. 헬스장에 가기 전에 뭔가 먹습니까? (偉い=えらい)</div></div>
+        <div class="line"><div class="who">B</div><div class="j">運動する前には何も食べませんが、終わった後で焼き鳥を食べます。ジムの1階に焼き鳥屋があって、いつもいい匂いに負けています。</div><div class="k">운동하기 전엔 아무것도 안 먹지만, 끝난 후에 야키토리를 먹습니다. 1층에 야키토리집이 있어서 항상 좋은 냄새에 지고 있어요. (負ける 지다)</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 24과 ==================== -->
+  <div class="panel" id="p24" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Advice</p>
+        <h2 class="sec-title">~方がいい · ~ために · ~まで</h2>
+        <p class="sec-sub">과거형+方がいい / 부정 ~ない方がいい.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">お酒は<span class="hl">飲まない方がいい</span>です。</div><div class="r">おさけは のまないほうが いいです</div><div class="k">술은 마시지 않는 편이 좋습니다.</div></li>
+          <li><div class="j">日本に行く<span class="hl">ために</span>アルバイトをします。</div><div class="r">にほんに いく ために</div><div class="k">일본에 가기 위해서 아르바이트를 합니다. (명사+のために)</div></li>
+          <li><div class="j">すっきりする<span class="hl">まで</span>泣いた方がいい。</div><div class="k">후련해질 때까지 우는 편이 좋다. (동사 원형+まで)</div></li>
+        </ul>
+        <div class="note"><span class="tag">23과 — 부정 명령</span><p><span class="jp">~ないでください</span> ~하지 마세요. 뭐 빼고 = <span class="jp">~抜き(ぬき)で / ~なしで</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">24과 단어</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">貯金する・会社を辞める</span><span class="rd">ちょきん・やめる</span></div><div class="mn">저금하다 · 회사를 그만두다</div></div>
+        <div class="row"><div class="lead"><span class="w">恋人と別れる</span><span class="rd">こいびととわかれる</span></div><div class="mn">연인과 헤어지다</div></div>
+        <div class="row"><div class="lead"><span class="w">すっきりする・泣く</span><span class="rd">なく</span></div><div class="mn">후련하다 · 울다</div></div>
+        <div class="row"><div class="lead"><span class="w">悪口を言う</span><span class="rd">わるぐちをいう</span></div><div class="mn">험담하다 (陰口 뒷담화, 裏切る 배신)</div></div>
+        <div class="row"><div class="lead"><span class="w">成功する・あきらめる</span><span class="rd">せいこう</span></div><div class="mn">성공하다 · 포기하다</div></div>
+        <div class="row"><div class="lead"><span class="w">将来の夢・大学院</span><span class="rd">しょうらい・だいがくいん</span></div><div class="mn">장래의 꿈 · 대학원</div></div>
+        <div class="row"><div class="lead"><span class="w">もらう・受ける</span><span class="rd">うける</span></div><div class="mn">받다: もらう 물체 / 受ける 서비스·시험</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">24과 본문 · 이별 상담</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">A</div><div class="j">先週、恋人と別れました。毎晩、彼女の写真を見ながら泣いています。</div><div class="k">지난주에 연인과 헤어졌어요. 매일 밤 사진을 보면서 울고 있어요. (~ながら ~하면서)</div></div>
+        <div class="line"><div class="who">B</div><div class="j">その気持ち、分かります。すっきりするまで泣いた方がいいですよ。でも、写真は見ない方がいいです。もっと落ち込むだけです。</div><div class="k">그 마음 이해해요. 후련해질 때까지 우는 편이 좋아요. 하지만 사진은 안 보는 편이 좋아요. 더 우울해질 뿐입니다. (落ち込む 우울해지다, だけ 뿐)</div></div>
+        <div class="line"><div class="who">B</div><div class="j">酒は飲まない方がいいです。それより、忘れるために何か新しいことを始めた方がいいですよ。元気出してください。</div><div class="k">술은 안 마시는 편이 좋아요. 그것보다 잊기 위해 뭔가 새로운 일을 시작하는 편이 좋아요. 기운 내세요.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 26과 ==================== -->
+  <div class="panel" id="p26" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Hearsay</p>
+        <h2 class="sec-title">~そうだ · 전달 (~라고 합니다)</h2>
+        <p class="sec-sub">완전한 반말 문장 + そうです. (そう를 떼도 문장 성립)</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">명사·な</td><td class="jp">医者だ<span class="out">そうです</span> · 好きだ<span class="out">そうです</span></td></tr>
+          <tr><td class="grp">い·동사</td><td class="jp">いい<span class="out">そうです</span> · 会う<span class="out">そうです</span> · 降った<span class="out">そうです</span></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">明日も暑い<span class="hl">そうです</span>。 / 昨日は雨が降った<span class="hl">そうです</span>。</div><div class="k">내일도 덥다고 합니다. / 어제는 비가 내렸다고 합니다.</div></li>
+        </ul>
+        <div class="note"><span class="tag">25과 — 과거형</span><p>い형용사 <span class="jp">い→かった</span> · 명사·な <span class="jp">だ→だった</span> · 동사 <span class="jp">て형의 て→た</span>.</p></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 27과 ==================== -->
+  <div class="panel" id="p27" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Conjecture</p>
+        <h2 class="sec-title">~そうだ · 양태 (~ㄹ 것 같다)</h2>
+        <p class="sec-sub">불완전한 형태 + そうだ. 보고 받은 인상·직전 예측 (~해 보인다 / ~ㄹ 것 같다). 명사 X, 이미 일어난 일 X. 26과 전달과 구별.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">な · 다 떼고</td><td class="jp">好きだ→<span class="out">好きそう</span></td></tr>
+          <tr><td class="grp">い · い 떼고</td><td class="jp">おいしい→<span class="out">おいしそう</span></td></tr>
+          <tr><td class="grp">동사 · ます형</td><td class="jp">降る→<span class="out">降りそう</span></td></tr>
+          <tr><td class="grp">예외 / 부정</td><td class="jp">いい→<span class="out">よさそう</span> · ない→<span class="out">なさそう</span> · 부정 <span class="out">~なさそう</span></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">20分ぐらい<span class="hl">遅れそうです</span>。 / バッテリーが<span class="hl">切れそうです</span>。</div><div class="k">20분 정도 늦을 것 같습니다. / 배터리가 떨어질 것 같습니다.</div></li>
+        </ul>
+        <div class="note"><span class="tag">Point</span><p>명사 꾸밀 땐 <span class="jp">そうな</span> (泣きそうな子). <span class="jp">~しか</span>(밖에)+부정 ↔ <span class="jp">~だけ</span>(만). あと+수치=앞으로.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Vocabulary</p>
+        <h2 class="sec-title">27과 단어</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="voc">
+        <div class="row"><div class="lead"><span class="w">温かい・甘い</span><span class="rd">あたたかい・あまい</span></div><div class="mn">따뜻하다 · 달다</div></div>
+        <div class="row"><div class="lead"><span class="w">充電が切れる</span><span class="rd">じゅうでんがきれる</span></div><div class="mn">배터리가 떨어지다·방전되다</div></div>
+        <div class="row"><div class="lead"><span class="w">便利だ・丈夫だ</span><span class="rd">べんり・じょうぶ</span></div><div class="mn">편리하다 · 튼튼하다</div></div>
+        <div class="row"><div class="lead"><span class="w">飲み物</span><span class="rd">のみもの</span></div><div class="mn">음료 (食べ物·乗り物·着物)</div></div>
+        <div class="row"><div class="lead"><span class="w">木が倒れる・転ぶ</span><span class="rd">たおれる・ころぶ</span></div><div class="mn">쓰러지다 · 넘어지다</div></div>
+        <div class="row"><div class="lead"><span class="w">気をつける・持っていく</span><span class="rd">きをつける</span></div><div class="mn">조심하다 · 갖고 가다</div></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">27과 본문 · 전화 통화</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">私</div><div class="j">もしもし、ミキさん、今日の約束に20分ぐらい遅れそうです。</div><div class="k">여보세요, 미키 씨, 오늘 약속에 20분 정도 늦을 것 같습니다.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">分かりました。今どこですか。</div><div class="k">알겠습니다. 지금 어디입니까?</div></div>
+        <div class="line"><div class="who">私</div><div class="j">バス停の前ですが、ケータイの充電も10%しかありません。じゃ、充電が切れそうだから、電話を切りますね。</div><div class="k">버스 정류장 앞인데, 충전도 10%밖에 없습니다. 그럼 배터리가 떨어질 것 같으니까 전화 끊을게요.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">大変そうですね。気をつけて来てください。</div><div class="k">힘들겠네요. 조심히 오세요.</div></div>
+        <div class="line"><div class="who">私</div><div class="j">ありがとうございます。ミキさんの好きそうなものをお土産に持っていきます。</div><div class="k">감사합니다. 미키 씨가 좋아할 것 같은 걸 선물로 갖고 갈게요.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">私は美味しそうなケーキを買ってきました。楽しみにしてください。</div><div class="k">저는 맛있어 보이는 케이크를 사 왔어요. 기대하세요.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 29과 ==================== -->
+  <div class="panel" id="p29" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Conditional ①·②</p>
+        <h2 class="sec-title">と / たら</h2>
+        <p class="sec-sub">と=당연한 결과(기본형+と). たら=일반 가정(과거형+ら, <span class="hot">가장 많이 씀</span>).</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">夏に<span class="hl">なると</span>、暑いです。</div><div class="r">なつに なると、あついです</div><div class="k">여름이 되면 덥습니다. (なる 앞엔 に)</div></li>
+          <li><div class="j">宝くじに<span class="hl">当たったら</span>、大きい建物を買いたいです。</div><div class="r">たからくじに あたったら</div><div class="k">복권에 당첨되면 큰 건물을 사고 싶어요. (たら는 앞이 먼저 일어남)</div></li>
+        </ul>
+        <table class="conj">
+          <tr><td class="grp">たら 활용</td><td class="jp">先生<span class="out">だったら</span> · 好き<span class="out">だったら</span> · おいし<span class="out">かったら</span> · 飲ん<span class="out">だら</span></td></tr>
+        </table>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Conditional ③·④</p>
+        <h2 class="sec-title">ば / なら</h2>
+        <p class="sec-sub">ば=문형 셋 (~ば~ほど / ~ばよかった / どうやって~ばいい). なら=~라면.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">勉強<span class="hl">すればするほど</span>難しい。</div><div class="r">べんきょうすれば するほど むずかしい</div><div class="k">공부하면 할수록 어렵다. (동사·い형용사는 ほど 앞 원형)</div></li>
+          <li><div class="j">たくさん<span class="hl">食べておけばよかった</span>。</div><div class="k">많이 먹어 뒀으면 좋았을 텐데.</div></li>
+          <li><div class="j">先生<span class="hl">なら</span> / 暑い<span class="hl">なら</span> / 行く<span class="hl">なら</span></div><div class="k">선생님이라면 / 덥다면 / 간다면 (명사·な는 だ 없이)</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">~と思う</h2>
+        <p class="sec-sub">완전한 형태 + と思う. 내 추측은 そうだ·みたいだ보다 <span class="hot">훨씬 많이 씀</span>.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <ul class="ex">
+          <li><div class="j">明日、雨が<span class="hl">降ると思います</span>。</div><div class="k">내일 비가 올 것 같아요.</div></li>
+        </ul>
+        <div class="note"><span class="tag">28과 — ~という</span><p>と(라고)+いう(말하다)=「~라는」. 회화 <span class="jp">~っていう</span>.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">29과 본문 · 복권</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">金</div><div class="j">ミキさんは毎週宝くじを買っていますね。</div><div class="k">미키 씨는 매주 복권을 사고 있네요.</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">一回も当たったことはありませんが、今週も買ってしまいました。</div><div class="k">한 번도 당첨된 적은 없지만, 이번 주도 사버렸습니다.</div></div>
+        <div class="line"><div class="who">金</div><div class="j">もし宝くじに当たったら、仕事を辞めますか。</div><div class="k">만약 복권에 당첨되면 일을 그만둘 겁니까?</div></div>
+        <div class="line"><div class="who">ミキ</div><div class="j">宝くじに当たっても、仕事は辞めないと思います。実は、会社の近くにある行きつけの店で飲むビールが大好きで。</div><div class="k">당첨돼도 일은 그만두지 않을 거라 생각합니다. 실은 회사 근처 단골 가게에서 마시는 맥주가 너무 좋아서.</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== 30과 ==================== -->
+  <div class="panel" id="p30" role="tabpanel">
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">01</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar</p>
+        <h2 class="sec-title">~해지다 / 형용사→부사</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">~해지다 なる</td><td class="jp">い형용사 <b>く</b>+なる · な형용사 <b>に</b>+なる</td></tr>
+          <tr><td class="grp">부사</td><td class="jp">い→く (早く) · だ→に (静かに)</td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">日本語をもっと勉強すると、だんだん<span class="hl">難しくなる</span>でしょう。</div><div class="k">일본어를 더 배우면 점점 어려워질 겁니다.</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">02</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Volitional</p>
+        <h2 class="sec-title">의지·권유형 / ~하려고</h2>
+        <p class="sec-sub">~ましょう의 반말형. 「입 동그랗게(お)」.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">3그룹</td><td class="jp">する→<span class="out">しよう</span> · 来る→<span class="out">来よう</span></td></tr>
+          <tr><td class="grp">2그룹 る→よう</td><td class="jp">食べる→<span class="out">食べよう</span></td></tr>
+          <tr><td class="grp">1그룹 お단+う</td><td class="jp">行く→<span class="out">行こう</span> · 飲む→<span class="out">飲もう</span></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">日本に<span class="hl">行こうと思います</span>。 / 日本に<span class="hl">行くつもりです</span>。</div><div class="k">일본에 가려고 생각합니다. / 갈 생각입니다. (~つもり·予定 예정)</div></li>
+        </ul>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">03</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Grammar · Potential</p>
+        <h2 class="sec-title">가능형 / ~たり~たり</h2>
+        <p class="sec-sub">1그룹 え단+る · 2그룹 られる(회화는 ら 빼고 れる) · 3그룹만 특별.</p>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="unit">
+        <table class="conj">
+          <tr><td class="grp">3그룹</td><td class="jp">する→<span class="out">できる</span> · 来る→<span class="out">来られる</span></td></tr>
+          <tr><td class="grp">え단+る</td><td class="jp">行く→<span class="out">行ける</span> · 食べる→<span class="out">食べ(ら)れる</span></td></tr>
+        </table>
+        <ul class="ex">
+          <li><div class="j">結局<span class="hl">会えなかった</span>。 / 掃除<span class="hl">したり</span>、遊<span class="hl">んだり</span>する。</div><div class="k">결국 못 만났어요. / 청소하거나 놀거나 한다. (과거형+り)</div></li>
+        </ul>
+        <div class="note real"><span class="tag">실전 · ら抜き言葉</span><p>2그룹 가능형은 교재상 <span class="jp">られる</span>지만 실제로는 90%가 ら를 빼고 <span class="hot">食べれる · 見れる</span>로 씀.</p></div>
+      </div>
+    </section>
+    <section class="block">
+      <div class="sec-head"><span class="sec-idx">04</span><div class="sec-title-wrap">
+        <p class="eyebrow" style="margin:0 0 10px">Reading · Dialogue</p>
+        <h2 class="sec-title">30과 본문 · 봉사활동</h2>
+      </div></div>
+      <div class="sec-rule"></div>
+      <div class="dlg">
+        <div class="line"><div class="who">A</div><div class="j">もう12月ですね。冬休みは何をしようと思いますか。</div><div class="k">벌써 12월이네요. 겨울방학은 무엇을 하려고 생각합니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">1月8日から1ヶ月間、ボランティアに行く予定です。戦争で親を亡くした子供たちの世話をするボランティアです。</div><div class="k">1월 8일부터 한 달간 봉사활동에 갈 예정입니다. 전쟁으로 부모를 잃은 아이들을 돌보는 봉사활동입니다.</div></div>
+        <div class="line"><div class="who">A</div><div class="j">そこで何をしますか。</div><div class="k">거기서 무엇을 합니까?</div></div>
+        <div class="line"><div class="who">B</div><div class="j">部屋を綺麗に掃除したり、楽しく遊んだりするつもりです。</div><div class="k">방을 깨끗하게 청소하거나 즐겁게 놀거나 할 생각입니다.</div></div>
+      </div>
+      <p style="margin-top:40px"><a class="top" href="#" onclick="window.scrollTo({top:0});return false;">↑ Back to top</a></p>
+    </section>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="eyebrow">日本語 · Basic Study Notes</span>
+    <span class="eyebrow">Lesson 1 – 30</span>
+  </div>
+</footer>
+
+<nav class="pager" aria-label="페이지 넘기기">
+  <div class="row">
+    <button id="prevBtn" aria-label="이전 과">◀</button>
+    <div class="now" id="pageNow"></div>
+    <button id="nextBtn" aria-label="다음 과">▶</button>
+  </div>
+</nav>
+
+<script>
+  const tabs = [...document.querySelectorAll('.tab[role="tab"]')];
+  const panels = [...document.querySelectorAll('.panel')];
+  const order = tabs.map(t => t.dataset.target);
+  const titles = tabs.map(t => t.firstChild.textContent.trim());
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const nowEl = document.getElementById('pageNow');
+  const curEl = document.getElementById('curLesson');
+  const toc = document.getElementById('tocOverlay');
+  let cur = 0;
+  function show(i, dir){
+    i = Math.max(0, Math.min(order.length - 1, i));
+    if(i === cur && dir) return;
+    cur = i;
+    tabs.forEach(x => x.setAttribute('aria-selected','false'));
+    tabs[i].setAttribute('aria-selected','true');
+    panels.forEach(p => p.classList.remove('active','dir-next','dir-prev'));
+    const p = document.getElementById(order[i]);
+    p.classList.add('active');
+    if(dir) p.classList.add(dir === 'next' ? 'dir-next' : 'dir-prev');
+    nowEl.innerHTML = (i + 1) + ' / ' + order.length + '<b>' + titles[i] + '</b>';
+    curEl.textContent = titles[i];
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === order.length - 1;
+    window.scrollTo({top:0, behavior:'auto'});
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => { show(i, i > cur ? 'next' : 'prev'); toc.classList.remove('open'); }));
+  prevBtn.addEventListener('click', () => show(cur - 1, 'prev'));
+  nextBtn.addEventListener('click', () => show(cur + 1, 'next'));
+  document.getElementById('tocBtn').addEventListener('click', () => toc.classList.add('open'));
+  document.getElementById('tocClose').addEventListener('click', () => toc.classList.remove('open'));
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape'){ toc.classList.remove('open'); return; }
+    if(toc.classList.contains('open') || e.altKey || e.metaKey || e.ctrlKey) return;
+    if(e.key === 'ArrowRight') show(cur + 1, 'next');
+    if(e.key === 'ArrowLeft')  show(cur - 1, 'prev');
+  });
+  // swipe to flip
+  const M = document.querySelector('main');
+  let x0 = null, y0 = null;
+  M.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive:true});
+  M.addEventListener('touchend', e => {
+    if(x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5){ dx < 0 ? show(cur + 1, 'next') : show(cur - 1, 'prev'); }
+    x0 = y0 = null;
+  }, {passive:true});
+  // theme
+  const root = document.documentElement;
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const isDark = c ? c === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  });
+  // pronunciation (browser TTS)
+  const synth = window.speechSynthesis;
+  function speak(text, btn){
+    if(!synth) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = 0.9;
+    const v = (synth.getVoices() || []).find(x => x.lang && x.lang.toLowerCase().startsWith('ja'));
+    if(v) u.voice = v;
+    btn.classList.add('on');
+    u.onend = u.onerror = () => btn.classList.remove('on');
+    synth.speak(u);
+  }
+  if(synth){
+    document.querySelectorAll('.ex .j, .line .j').forEach(el => {
+      const b = document.createElement('button');
+      b.className = 'speak'; b.type = 'button'; b.setAttribute('aria-label','발음 듣기'); b.textContent = '🔊';
+      b.addEventListener('click', ev => { ev.stopPropagation(); speak(el.textContent.replace(/🔊/g,'').trim(), b); });
+      el.appendChild(b);
+    });
+  }
+  show(0);
+</script>
+</html>
